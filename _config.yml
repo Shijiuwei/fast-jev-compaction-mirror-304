@@ -1,0 +1,5 @@
+title: "fast-jev-compaction-mirror-304"
+description: "High availability mirror and network topology specifications for tamaratran/fast-jev-compaction"
+theme: jekyll-theme-cayman
+plugins:
+  - jekyll-relative-links
