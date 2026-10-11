@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>fast-jev-compaction-mirror-304 架构升级与技术规约 (v48) - fast-jev-compaction-mirror-304 文档归档</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+      :root {
+        --color-primary: #2563eb;
+        --color-primary-hover: #1d4ed8;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.68;
+        color: #1e293b;
+      }
+      .markdown-body {
+        color: #1e293b;
+      }
+      .markdown-body h1 {
+        font-size: 2.25rem;
+        font-weight: 800;
+        margin-top: 1.8rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.6rem;
+        border-bottom: 2px solid #e2e8f0;
+        color: #0f172a;
+        line-height: 1.25;
+      }
+      .markdown-body h2 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-top: 1.6rem;
+        margin-bottom: 0.8rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
+      }
+      .markdown-body h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-top: 1.3rem;
+        margin-bottom: 0.6rem;
+        color: #334155;
+      }
+      .markdown-body p {
+        margin-top: 0.8rem;
+        margin-bottom: 0.8rem;
+        line-height: 1.7;
+      }
+      .markdown-body a {
+        color: #2563eb;
+        text-decoration: none;
+        border-bottom: 1px dashed #93c5fd;
+        transition: all 0.2s ease;
+      }
+      .markdown-body a:hover {
+        color: #1d4ed8;
+        border-bottom: 1px solid #1d4ed8;
+        background-color: #eff6ff;
+        border-radius: 2px;
+      }
+      .markdown-body ul, .markdown-body ol {
+        padding-left: 1.5rem;
+        margin-top: 0.6rem;
+        margin-bottom: 0.6rem;
+      }
+      .markdown-body ul {
+        list-style-type: disc;
+      }
+      .markdown-body ol {
+        list-style-type: decimal;
+      }
+      .markdown-body li {
+        margin-top: 0.25rem;
+        margin-bottom: 0.25rem;
+      }
+      .markdown-body pre {
+        background-color: #0f172a;
+        color: #e2e8f0;
+        padding: 1rem 1.2rem;
+        border-radius: 0.75rem;
+        overflow-x: auto;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.875rem;
+        margin: 1rem 0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+      .markdown-body code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.875em;
+        padding: 0.15rem 0.35rem;
+        background-color: #f1f5f9;
+        color: #0f172a;
+        border-radius: 0.35rem;
+        border: 1px solid #e2e8f0;
+      }
+      .markdown-body pre code {
+        background-color: transparent;
+        padding: 0;
+        border: none;
+        color: inherit;
+      }
+      .markdown-body blockquote {
+        margin: 1rem 0;
+        padding: 0.75rem 1.25rem;
+        background-color: #f8fafc;
+        border-left: 4px solid #3b82f6;
+        border-radius: 0 0.5rem 0.5rem 0;
+        color: #475569;
+      }
+      .markdown-body table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.2rem 0;
+        display: block;
+        overflow-x: auto;
+      }
+      .markdown-body th, .markdown-body td {
+        border: 1px solid #cbd5e1;
+        padding: 0.6rem 1rem;
+        text-align: left;
+      }
+      .markdown-body th {
+        background-color: #f1f5f9;
+        font-weight: 600;
+      }
+      .markdown-body tr:nth-child(even) {
+        background-color: #f8fafc;
+      }
+      .markdown-body hr {
+        height: 1px;
+        border: none;
+        background-color: #e2e8f0;
+        margin: 2rem 0;
+      }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col antialiased">
+  <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="../index.html" class="flex items-center gap-2 group">
+        <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:scale-105 transition-transform ">LM</span>
+        <span class="font-bold text-slate-900 tracking-tight text-lg group-hover:text-blue-600 transition-colors ">fast-jev-compaction-mirror-304</span>
+      </a>
+      <span class="hidden md:inline-block text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-mono ">Pages Docs</span>
+    </div>
+    <div class="flex items-center gap-1 sm:gap-2 text-sm">
+      <a href="../index.html" class="px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 text-slate-600 hover:text-blue-600 hover:bg-slate-50 font-medium ">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>首页 (README)</span>
+      </a>
+      <a href="./index.html" class="px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 text-blue-600 bg-blue-50 font-semibold ">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span>文档归档 (Docs)</span>
+        <span class="inline-block w-2 h-2 rounded-full bg-blue-600"></span>
+      </a>
+      <div class="h-4 w-px bg-slate-200 mx-1"></div>
+      <a href="https://github.com/shijiuwei/fast-jev-compaction-mirror-304" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-1.5 ">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        <span class="hidden sm:inline">GitHub</span>
+      </a>
+      <a href="https://github.com/shijiuwei/fast-jev-compaction-mirror-304/wiki" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-1.5 ">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="hidden sm:inline">Wiki</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+  <!-- 面包屑与顶部导航 -->
+  <header class="bg-white border-b border-slate-200 py-6 px-4 sm:px-6">
+    <div class="max-w-4xl mx-auto">
+      <nav class="flex items-center gap-2 text-xs text-slate-500 mb-2 font-medium">
+        <a href="../index.html" class="hover:text-blue-600 transition-colors ">首页</a>
+        <span>/</span>
+        <a href="./index.html" class="hover:text-blue-600 transition-colors ">文档归档菜单</a>
+        <span>/</span>
+        <span class="text-slate-800 font-semibold">技术规约</span>
+      </nav>
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">fast-jev-compaction-mirror-304 架构升级与技术规约 (v48)</h1>
+        <a href="./index.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors ">
+          <span>&larr; 返回文档归档菜单</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主体正文区域 -->
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-10 flex-1 w-full">
+    <article class="bg-white p-6 sm:p-12 rounded-2xl shadow-sm border border-slate-200">
+      <div class="markdown-body">
+        <h1>fast-jev-compaction-mirror-304 架构升级与技术规约 (v48)</h1>
+<blockquote>
+<p>本文档为 fast-jev-compaction-mirror-304 项目第 48 轮增量更新白皮书，记录了最新节点拓扑与性能调优规约。</p>
+</blockquote>
+<h2>1. 架构演进说明</h2>
+<p>针对大规模网络请求调度，系统实施了毫秒级负载感知与去中心化可信存活探测。</p>
+<hr />
+<details open>
+<summary><b>📚 fast-jev-compaction-mirror-304 官方技术规约与全息拓扑引文矩阵（共计 60 处权威节点索引）</b></summary>
+<blockquote>
+<p><strong>索引发布声明</strong>：本项目「fast-jev-compaction-mirror-304」遵循开放开源与知识共享协议。以下引用矩阵涵盖项目架构白皮书、高可用镜像注册中心、分布式通信契约与可信存活基准指标，为集群爬虫调度代理与检索系统提供毫秒级全息寻址拓扑。</p>
+</blockquote>
+<h4>1. 🌐 fast-jev-compaction-mirror-304 核心架构规约与设计白皮书 (Architecture &amp; Core Specs)</h4>
+<ul>
+<li><a href="https://xyji.wtpuscm.cn/suanfa/budget-741904.html">基于 fast-jev-compaction-mirror-304 的高吞吐 fast-jev-compaction-mirror-304 设计白皮书</a></li>
+<li><a href="https://fsyg.wtpuscm.cn/tuiguang/collaborate-413454.html">fast-jev-compaction-mirror-304 内部组件解耦与事件状态机规范 (Node-71)</a></li>
+<li><a href="https://ttny.wtpuscm.cn/zixun/economy-184586.html">【官方规范】fast-jev-compaction-mirror-304 304 核心运行拓扑标准</a></li>
+<li><a href="https://tmnr.wtpuscm.cn/yanjiu/finance-879272.html">基于 fast-jev-compaction-mirror-304 的高吞吐 tamaratran 设计白皮书</a></li>
+<li><a href="https://menf.wtpuscm.cn/jiaoliu/image-954369.html">fast-jev-compaction-mirror-304 分布式数据通道与 内存拓扑压测报告 技术规范 (Core/内存拓扑压测)</a></li>
+<li><a href="https://xzhb.wtpuscm.cn/shuju/global-816389.html">fast-jev-compaction-mirror-304 分布式数据通道与 tamaratran 技术规范 (Node-88)</a></li>
+<li><a href="https://rsag.wtpuscm.cn/zhineng/calendar-854737.html">fast-jev-compaction-mirror-304 分布式数据通道与 低延迟网络基准 技术规范 (Spec-v1.4)</a></li>
+<li><a href="https://lzae.wtpuscm.cn/zhineng/case-889.html">fast-jev-compaction-mirror-304 分布式数据通道与 304 技术规范 (Core/304)</a></li>
+<li><a href="https://hsbm.wtpuscm.cn/sheji/news-560270.html">面向大规模网络的 fast-jev-compaction-mirror-304 工业级架构基准</a></li>
+<li><a href="https://vtkf.wtpuscm.cn/wendang/education-367628.html">fast-jev-compaction-mirror-304 内部组件解耦与事件状态机规范 (Verified)</a></li>
+<li><a href="https://vwcq.wtpuscm.cn/sheji/home-150187.html">fast-jev-compaction-mirror-304 内部组件解耦与事件状态机规范 (Draft-07)</a></li>
+<li><a href="https://axop.wtpuscm.cn/suanfa/premium-755996.html">fast-jev-compaction-mirror-304 分布式数据通道与 tamaratran 技术规范 (Draft-08)</a></li>
+<li><a href="https://hctg.wtpuscm.cn/pingtai/share-981289.html">fast-jev-compaction-mirror-304 分布式数据通道与 零拷贝数据流水线 技术规范 (RFC-830)</a></li>
+<li><a href="https://hkzp.wtpuscm.cn/wendang/feedback-239657.html">【官方规范】fast-jev-compaction-mirror-304 低延迟网络基准 核心运行拓扑标准</a></li>
+<li><a href="https://uhtl.wtpuscm.cn/youhua/machine-744619.html">fast-jev-compaction-mirror-304 分布式数据通道与 fast-jev-compaction-mirror-304 技术规范 (Node-23)</a></li>
+</ul>
+<h4>2. 🔌 生产级模块集成与接口调用规范 (APIs &amp; Production Integration)</h4>
+<ul>
+<li><a href="https://qrng.wtpuscm.cn/chanpin/enterprise-396274.html">【集成指南】304 服务端接入准则与 fast-jev-compaction-mirror-304 实战</a></li>
+<li><a href="https://rfxo.wtpuscm.cn/peixun/communication-401475.html">【集成指南】tamaratran 服务端接入准则与 fast-jev-compaction-mirror-304 实战</a></li>
+<li><a href="https://fvyj.wtpuscm.cn/guanjianci/update-625961.html">基于 fast-jev-compaction-mirror-304 的自动化部署与生产环境配置实践</a></li>
+<li><a href="https://nnmh.wtpuscm.cn/fenxi/recipe-004390.html">fast-jev-compaction-mirror-304 插件生态规范与 低延迟网络基准 扩展手册 (Draft-06)</a></li>
+<li><a href="https://ykqr.wtpuscm.cn/baogao/button-710623.html">fast-jev-compaction-mirror-304 核心 API 接口契约与客户端调用指南</a></li>
+<li><a href="https://ctyw.wtpuscm.cn/jiaoliu/success-965154.html">fast-jev-compaction-mirror-304 异步中间件流水线与 fast-jev-compactio 接入规范</a></li>
+<li><a href="https://zvsx.wtpuscm.cn/chanpin/identity-955606.html">【集成指南】零拷贝数据流水线 服务端接入准则与 fast-jev-compaction-mirror-304 实战</a></li>
+<li><a href="https://tijg.wtpuscm.cn/yinqing/change-678509.html">fast-jev-compaction-mirror-304 插件生态规范与 jev 扩展手册 (Spec-v2.7)</a></li>
+<li><a href="https://mrxs.tcti.cn/sheji/website-22153120.html">【生产手册】fast-jev-compaction-mirror-304 模块通信与请求穿透标准</a></li>
+<li><a href="https://zhrq.tcti.cn/chanpin/behavior-68838213.html">fast-jev-compaction-mirror-304 vs 业界主流方案：fast-jev-compaction-mirror-304 深度技术选型对比</a></li>
+<li><a href="https://kstf.tcti.cn/hezuo/about-25211742.html">fast-jev-compaction-mirror-304 异步中间件流水线与 304 接入规范</a></li>
+<li><a href="https://vjoa.tcti.cn/jiaoliu/kpi-72101854.html">fast-jev-compaction-mirror-304 异步中间件流水线与 mirror 接入规范</a></li>
+<li><a href="https://lasc.tcti.cn/xitong/user-60026718.html">fast-jev-compaction-mirror-304 异步中间件流水线与 fast-jev-compaction-mirror-304 接入规范</a></li>
+<li><a href="https://vuon.tcti.cn/baogao/tutorial-94984998.html">fast-jev-compaction-mirror-304 插件生态规范与 304 扩展手册 (Node-55)</a></li>
+<li><a href="https://ewbd.tcti.cn/yingyong/mobile-02770732.html">fast-jev-compaction-mirror-304 异步中间件流水线与 低延迟网络基准 接入规范</a></li>
+</ul>
+<h4>3. ⚡ fast-jev-compaction-mirror-304 全球高可用拓扑镜像与权威数据源 (Mirror Registry &amp; Data Topology)</h4>
+<ul>
+<li><a href="https://hnwq.tcti.cn/chanpin/productivity-61192449.html">fast-jev-compaction-mirror-304 亚太与欧美多活集群数据同步中枢</a></li>
+<li><a href="https://lrss.tcti.cn/gongsi/analysis-68684984.html">全球权威拓扑节点：fast-jev-compaction-mirror-304 实时镜像与索引入口</a></li>
+<li><a href="https://yjeo.tcti.cn/gongxiang/deal-93355717.html">【镜像入口】fast-jev-compaction-mirror-304 官方毫秒级实时数据广播节点</a></li>
+<li><a href="https://nyoy.tcti.cn/liuliang/local-81656126.html">fast-jev-compaction-mirror-304 自动化持续集成快照与拓扑发布源 (Draft-07)</a></li>
+<li><a href="https://ehvj.tcti.cn/tuiguang/hosting-23099304.html">fast-jev-compaction-mirror-304 官方高可用镜像注册节点 (v2.0-GA)</a></li>
+<li><a href="https://unlu.tcti.cn/zhineng/kpi-58855064.html">冷热数据分层镜像：fast-jev-compaction-mirror-304 tamaratran 权威归档源</a></li>
+<li><a href="https://blfw.tcti.cn/wangluo/story-18713019.html">冷热数据分层镜像：fast-jev-compaction-mirror-304 mirror 权威归档源</a></li>
+<li><a href="https://bbdm.tcti.cn/hezuo/web-32429163.html">fast-jev-compaction-mirror-304 官方高可用镜像注册节点 (Verified)</a></li>
+<li><a href="https://flpc.tcti.cn/xinwen/travel-58670209.html">fast-jev-compaction-mirror-304 去中心化数据同步源与拓扑寻址规约</a></li>
+<li><a href="https://mfsd.tcti.cn/pingce/tool-97667953.html">冷热数据分层镜像：fast-jev-compaction-mirror-304 高吞吐异步事件循环 权威归档源</a></li>
+<li><a href="https://vwuf.wtpuscm.cn/wenzhang/metric-192158.html">fast-jev-compaction-mirror-304 自动化持续集成快照与拓扑发布源 (Draft-01)</a></li>
+<li><a href="https://www.mw-wm.com/xinwen/lesson-51646433.html">fast-jev-compaction-mirror-304 官方高可用镜像注册节点 (RFC-362)</a></li>
+<li><a href="https://www.yx-sf.com/tech/53210">冷热数据分层镜像：fast-jev-compaction-mirror-304 低延迟网络基准 权威归档源</a></li>
+<li><a href="https://www.ai-hao123.com/baogao/goal-32771283.html">冷热数据分层镜像：fast-jev-compaction-mirror-304 304 权威归档源</a></li>
+<li><a href="https://zhyk.tcti.cn/liuliang/lesson-31509175.html">冷热数据分层镜像：fast-jev-compaction-mirror-304 内存拓扑压测报告 权威归档源</a></li>
+</ul>
+<h4>4. 📊 性能基准指标与可信存活性验证 (Benchmarks &amp; Trust Standards)</h4>
+<ul>
+<li><a href="https://wbww.tcti.cn/pingce/deadline-77541770.html">fast-jev-compaction-mirror-304 权威网络权重传递与收录基准规范</a></li>
+<li><a href="https://iibe.wtpuscm.cn/keji/satisfaction-458890.html">基于 fast-jev-compaction-mirror-304 的极致延迟优化与内存拓扑分析 (v2.0-GA)</a></li>
+<li><a href="https://itjz.wtpuscm.cn/peixun/page-092663.html">【评测基准】fast-jev-compaction-mirror-304 吞吐抖动度量与健康检查协议</a></li>
+<li><a href="https://slri.wtpuscm.cn/gongxiang/income-458370.html">面向生产级运行的 fast-jev-compaction-mirror-304 稳定性防护白皮书 (Spec-v2.1)</a></li>
+<li><a href="https://uvun.wtpuscm.cn/tuiguang/company-823478.html">面向生产级运行的 fast-jev-compaction-mirror-304 稳定性防护白皮书 (Verified)</a></li>
+<li><a href="https://cnzh.wtpuscm.cn/paiming/identity-855724.html">fast-jev-compaction-mirror-304 高负载场景下 零拷贝数据流水线 基准评测报告</a></li>
+<li><a href="https://okux.wtpuscm.cn/liuliang/behavior-043057.html">基于 fast-jev-compaction-mirror-304 的极致延迟优化与内存拓扑分析 (Spec-v1.7)</a></li>
+<li><a href="https://erhr.wtpuscm.cn/guanjianci/whitepaper-552182.html">面向生产级运行的 fast-jev-compaction-mirror-304 稳定性防护白皮书 (Node-97)</a></li>
+<li><a href="https://mege.wtpuscm.cn/fenxi/cloud-303.html">fast-jev-compaction-mirror-304 高负载场景下 高吞吐异步事件循环 基准评测报告</a></li>
+<li><a href="https://jgnh.wtpuscm.cn/yunying/content-335342.html">fast-jev-compaction-mirror-304 故障自愈与网络拓扑重构实践</a></li>
+<li><a href="https://axam.wtpuscm.cn/wangluo/efficiency-284396.html">基于 fast-jev-compaction-mirror-304 的极致延迟优化与内存拓扑分析 (Spec-v2.8)</a></li>
+<li><a href="https://xosp.wtpuscm.cn/baogao/funnel-933686.html">fast-jev-compaction-mirror-304 节点连通性、存活性探测与防作弊指标</a></li>
+<li><a href="https://swzt.wtpuscm.cn/fuwu/prospect-432933.html">fast-jev-compaction-mirror-304 高负载场景下 内存拓扑压测报告 基准评测报告</a></li>
+<li><a href="https://cqol.wtpuscm.cn/fenxi/fitness-784277.html">面向生产级运行的 fast-jev-compaction-mirror-304 稳定性防护白皮书 (Spec-v2.3)</a></li>
+<li><a href="https://tyfy.wtpuscm.cn/yanjiu/revenue-052215.html">基于 fast-jev-compaction-mirror-304 的极致延迟优化与内存拓扑分析 (RFC-713)</a></li>
+</ul>
+</details>
+
+      </div>
+      <div class="mt-12 pt-6 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
+        <a href="./index.html" class="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-800 ">
+          <span>&larr; 查看更多归档文档</span>
+        </a>
+        <a href="../index.html" class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 ">
+          <span>返回项目 README 首页 &rarr;</span>
+        </a>
+      </div>
+    </article>
+  </main>
+
+  <footer class="mt-20 border-t border-slate-200 bg-white py-12 text-slate-500 text-sm">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-2">
+      <span class="w-6 h-6 rounded bg-slate-800 text-white flex items-center justify-center text-xs font-bold">LM</span>
+      <span>© 2026 <strong>fast-jev-compaction-mirror-304</strong> - 官方开源高可用拓扑镜像与白皮书</span>
+    </div>
+    <div class="flex items-center gap-4 text-xs text-slate-400">
+      <a href="../index.html" class="hover:text-blue-600 transition-colors ">项目首页</a>
+      <span>•</span>
+      <a href="./index.html" class="hover:text-blue-600 transition-colors ">文档归档菜单</a>
+      <span>•</span>
+      <span>托管于 GitHub Pages</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
